@@ -1,0 +1,10 @@
+services:
+  sri-wagmi:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - wagmi-state:/app/state
+
+volumes:
+  wagmi-state:
