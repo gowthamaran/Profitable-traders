@@ -1,175 +1,190 @@
-# Sri WAGMI
+# Trader Profitability Database
 
-A Solana meme coin scanner that runs as a Telegram bot. It reports what it can
-confirm on chain, and says plainly when it could not read something.
+A research site that answers one question for speculative crypto venues:
+**what percentage of wallets actually finished profitable?**
 
-The design rule, enforced in the filters and covered by tests: **an unknown is
-never a pass.** If the mint authority could not be read, the coin does not clear
-the safety gate — it lands in the unknowns list with the reason attached.
+Bloomberg terminal meets crypto culture — credible enough to cite, blunt enough
+to screenshot. Every percentage carries its numerator, denominator, source,
+query and methodology, and any figure that cannot be established reads
+`INSUFFICIENT VERIFIABLE DATA` rather than an estimate.
+
+> **Core principle:** you don't have to trust this website. You can check the
+> calculation yourself.
+
+---
+
+## ⚠️ Read this before looking at any number
+
+**This repository ships in DEMO MODE.** The dataset is synthetic — generated to
+exercise the interface. It is **not** a measurement of Pump.fun, Hyperliquid,
+Kalshi or any other named platform.
+
+That is enforced, not just documented:
+
+- A site-wide `DEMO DATA` banner and a `DEMO` badge on every card and figure.
+- Demo evidence sources are `provider: "DEMO"`, `status: UNVERIFIED`, `url: null`.
+  **No real Dune query, dataset or paper is ever cited for a synthetic number** —
+  a fabricated figure behind a plausible source link is the most damaging thing
+  this codebase could ship, so a test asserts it cannot happen.
+- Demo records score **LOW** on the evidence rubric, which is the honest result
+  for a figure with no reproducible source.
+
+Production mode (`DATA_MODE=production`) ignores the demo dataset entirely and
+serves only statistics that have been reproduced and approved in the database.
+With no approved records the site is empty — by design.
 
 ---
 
 ## What it does
 
-### Watch
+### The database
+Platform cards showing profitable %, unprofitable %, wallets analyzed, median
+PnL, evidence score and last-updated, filterable by category
+(`ALL / PREDICTION MARKETS / MEMECOINS / PERPS / CASINOS / OTHER`) and sortable
+without a page reload.
 
-**Trench scan** — every 10 minutes over the pump.fun feed:
+### Platform detail — `/platform/[slug]`
+Headline split, raw counts (analyzed / profitable / unprofitable / break-even /
+unknown), reality check, PnL distribution histogram, profitability by activity
+level, the survivors, the graveyard, profitability over time (7D–ALL), pain
+index with its full breakdown, algorithmic badges, methodological warnings, the
+evidence drawer, and a share card.
 
-- bonding curve 30–70% complete
-- mint authority dead, freeze authority dead (read from the SPL mint account)
-- holders not clustered — top 10 non-pool accounts under 25% of supply
-- buys up — buy/sell ratio at least 1.3× over 30+ prints
+### Verification — the point of the whole thing
+- **SHOW ME THE RECEIPTS** — every source with provider, type, dataset date,
+  sample, last-verified, reproducibility and status, plus the evidence score
+  broken down line by line.
+- **CHECK THE MATH** — numerator, denominator, the formula with the actual
+  numbers substituted in, PnL definition, fee and unrealized treatment,
+  exclusions, filters, date range, calculation version and the SQL.
 
-**Secondary scan** — every 30 minutes over Dexscreener, for coins that already
-took their beating:
-
-- 7 days or older
-- $2m–$25m market cap
-- LP not thin — at least $80k and at least 3% of market cap
-- volume back after the dump — 6h pace at least 1.2× the trailing 24h pace
-
-Both cap at **3 names per report, or silence**. Nothing clearing is a result,
-not a failure, and a scheduled scan that finds nothing says nothing. A name
-already called is suppressed for 24 hours.
-
-**Culture scan** — what is spreading on X *outside* CT, then whether a coin for
-it exists yet. This job ships **off**. Turn it on with `/on culture`.
-
-### Check a ticker
-
-Paste a contract, a pump.fun link, a Dexscreener link, or a name. You get mint
-authority, freeze authority, LP, age, market cap, volume, buy/sell flow, holder
-concentration, and whether CT has already flooded it.
-
-Names resolve through Dexscreener search and ambiguity is reported — if four
-Solana pairs match `$DOG`, it shows the deepest and tells you to paste the
-contract if you meant another one. **It will not invent a contract.** No
-address is ever constructed; every one is either read out of your input or
-returned by a source.
-
-### Commands
-
-| Command | What it does |
-| --- | --- |
-| `/check <CA \| link \| name>` | Full read on one coin |
-| `/scan` | Run the trench pass now |
-| `/secondary` | Run the survivors pass now |
-| `/culture` | One-off culture scan |
-| `/jobs` | What is running, and how often |
-| `/on <job>` / `/off <job>` | `trench`, `secondary`, `culture` — survives restart |
-| `/why [job]` | Why the last batch was rejected, with reasons |
-| `/thresholds` | The exact numbers being filtered on |
-| `/whoami` | Your chat id, for the allowlist |
-
-Pasting a bare contract address into the chat runs `/check` on it.
+### Other routes
+`/rankings` (six boards) · `/compare` (two-platform face-off) ·
+`/methodology` · `/sources` · `/admin` (research queue) · `/api/platforms`
 
 ---
 
-## What it cannot do
+## The rules the code enforces
 
-Stated up front because a scanner that hides its blind spots is worse than no
-scanner:
+These are the parts worth reviewing, because they are where a site like this
+usually goes wrong.
 
-- **GMGN unique holders — no.** Cloudflare blocks a plain API client. There is
-  no read here, and none is faked.
-- **Clustering is approximate.** `getTokenLargestAccounts` returns the top 20
-  token accounts. One entity behind thirty wallets still reads as thirty
-  holders. Known pool and bonding-curve programs are excluded so deep LP does
-  not read as a whale, but the ceiling is real and every holder line says so.
-- **CT flood counts need an X API key.** Without `TWITTER_BEARER_TOKEN` the
-  report says the check did not run. It never estimates a mention count.
-- **It does not predict.** No targets, no calls, no "this is going to run."
-  Numbers, sources, and the reasons a coin failed.
+**Percentages are never stored.** They are computed from counts at render time,
+so the figure on the page and the figure in CHECK THE MATH cannot drift apart.
+
+**Break-even and unknown wallets stay in the denominator.** Dropping them would
+raise the profitable share without any wallet changing outcome. A test pins
+this.
+
+**Wallets are not people.** Every figure is phrased as a share of *analyzed
+wallets*. The sentence "XX% of traders lost money" does not appear, because one
+person can run many wallets and no clustering method is good enough to claim
+otherwise.
+
+**Centralized venues get UNKNOWN, not a guess.** Casinos settle internally, so
+`PROFITABILITY: UNKNOWN` + `DATA BLACK HOLE` plus a note on exactly what is and
+is not public. **House edge is never presented as observed trader
+profitability** — it describes a game's expected margin, not what anyone
+finished with.
+
+**Nothing publishes itself.** Adapters produce `pending` records. Only a signed
+POST to `/api/admin/review` with a named reviewer makes one public. Rejected
+records are kept, because a rejected calculation is part of the audit trail.
+
+**Statistics are never overwritten.** Approval appends a snapshot in the same
+transaction, so a figure quoted six months ago stays inspectable.
+
+**Adapters fail loudly.** A missing column, counts that don't sum, or absent
+credentials all return a failure with a reason. No adapter ever infers which
+column meant "profitable" — a mis-mapped column produces a plausible number with
+no relationship to reality.
+
+**Polymarket is excluded everywhere**, per the specification. A test asserts it.
 
 ---
 
 ## Running it
 
-### Setup
-
 ```bash
-git clone https://github.com/gowthamaran/Profitable-traders.git
-cd Profitable-traders
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
+npm install
+cp .env.example .env    # works as-is: demo mode, no services needed
+npm run dev             # http://localhost:3000
 ```
 
-Fill in `.env`:
-
-1. `TELEGRAM_BOT_TOKEN` — from [@BotFather](https://t.me/BotFather).
-2. `ALLOWED_CHAT_IDS` — message the bot `/whoami` to get your chat id. **The bot
-   refuses to start without this**, so a leaked token does not become an open
-   bot.
-3. `SOLANA_RPC_URL` — strongly recommended. The public endpoint is rate limited
-   and will throttle the holder reads, which shows up as "holders: unread".
-
-Then:
+### Production mode
 
 ```bash
-python -m sri_wagmi
+psql "$DATABASE_URL" -f db/schema.sql
+export DATABASE_URL=postgres://...
+export DATA_MODE=production
+export ADMIN_TOKEN=$(openssl rand -hex 32)
+npm run build && npm start
 ```
 
-### Docker
+The site now serves only approved records. Approve one with:
 
 ```bash
-docker compose up -d --build
+curl -X POST "$SITE_URL/api/admin/review" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"statId":"<uuid>","decision":"approve","reviewer":"your-name",
+       "note":"Re-ran the query, counts match within 0.1%."}'
 ```
 
-State (the repeat-suppression window and the job switches) lives on a named
-volume, so restarts do not re-call the same coins.
+Deploy target is Vercel (`vercel.json` included); any Node host works.
 
-### Every threshold is an environment variable
+### Environment
 
-`.env.example` lists all of them with their defaults. Nothing is hardcoded in
-the scan logic; `sri_wagmi/config.py` is the single place they live, and
-`/thresholds` prints whatever is actually loaded.
+| Variable | Purpose |
+| --- | --- |
+| `DATA_MODE` | `demo` or `production`. Defaults by whether `DATABASE_URL` is set. |
+| `DATABASE_URL` | Postgres / Supabase connection string. |
+| `ADMIN_TOKEN` | 32+ chars. Absent ⇒ the review endpoint is disabled. |
+| `DUNE_API_KEY` | Optional. Absent ⇒ the adapter reports it cannot run. |
+| `FLIPSIDE_API_KEY` | Optional, used as the independent second source. |
+| `SITE_URL` | Canonical URL for metadata and share links. |
 
 ---
 
 ## Layout
 
 ```
-sri_wagmi/
-  config.py         every threshold, env-driven, one place
-  models.py         Token / Market / MintAuthorities / HolderSpread / Verdict
-  resolve.py        CA, pump.fun link, Dexscreener link, solscan link or name
-  scanner.py        the engine: fetch, confirm on chain, filter, rank
-  state.py          sqlite: what was called, which jobs are on
-  formatting.py     Telegram output (HTML, everything upstream escaped)
-  sources/
-    http.py         one aiohttp session, concurrency gate, bounded retries
-    dexscreener.py  price, LP, volume, txn counts, pair age
-    pumpfun.py      trench feed, bonding curve progress from curve reserves
-    solana.py       mint/freeze authority, holder spread, pool-owner exclusion
-    ct.py           X reads: flood counts and the culture pass
-  analysis/
-    filters.py      the two passes, each rejection carrying its reason
-  jobs/scans.py     scheduled passes, silent when empty
-  bot/              handlers and application wiring
+src/
+  app/            routes: home, platform/[slug], compare, rankings,
+                  methodology, sources, admin, api/
+  components/     cards, charts, evidence drawer, share card, primitives
+  lib/
+    types.ts      a percentage cannot exist without its evidence
+    metrics/      profitability · evidence · painIndex · badges · microcopy
+    data/         repository · mapping · demo dataset · mode
+    adapters/     dune · flipside · defillama · hyperliquid
+db/schema.sql     counts CHECK, approval gate, append-only snapshots
+tests/            88 tests, no network
 ```
-
-Cost discipline is in the ordering: the free cuts (bonding band, repeat
-suppression) run first, then one batched Dexscreener call, and only the top 12
-survivors by volume are worth paying RPC for.
 
 ## Development
 
 ```bash
-pip install -r requirements-dev.txt
-pytest -q
-ruff check sri_wagmi tests
-ruff format --check sri_wagmi tests
+npm run typecheck && npm run lint && npm test && npm run build
 ```
 
-84 tests, no network: `tests/test_scanner.py` stubs the HTTP layer at the URL
-level, so the real source parsers, the real filters and the real budget logic
-all run against canned upstream payloads.
+The suite covers the arithmetic (denominators, bucket classification,
+percentage identities), the evidence rubric and its grade bands, the pain index
+including weight redistribution, every badge rule, the microcopy triggers, the
+demo dataset's internal consistency **and its labelling**, adapter failure
+modes, and row mapping's rejection of inconsistent records.
+
+## Humour policy
+
+Roughly one playful element per screen, always as secondary copy under the
+statistic, and never on `/methodology` or a data warning. Nothing jokes about
+individuals, addiction, or anyone's real losses — the target is speculative
+markets in aggregate. Where humour and credibility conflict, credibility wins.
 
 ## Not advice
 
-This reads public data and prints it. It does not know what a chart does next,
-and neither does anyone else. Size it yourself.
+Historical observation of wallet-level outcomes. Nothing here forecasts any
+future result.
 
 ## License
 

@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: dark;
+}
+
+html {
+  background-color: #08090a;
+}
+
+body {
+  background-color: #08090a;
+  color: #e8eaed;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Numbers are tabular everywhere so columns line up in a table or a card. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+}
+
+/* The section-label treatment used across the terminal: small, tracked, muted. */
+.label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8b949e;
+  font-family: var(--font-mono);
+}
+
+.hairline {
+  border-color: #1e2429;
+}
+
+/* Focus is visible and consistent; the site is meant to be keyboard-usable. */
+:focus-visible {
+  outline: 2px solid #58a6ff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: rgba(88, 166, 255, 0.28);
+}
+
+/* Section 46: every animation is optional. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Bars and charts grow from zero on entry, capped well under 700ms. */
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.bar-grow {
+  transform-origin: left center;
+  animation: bar-grow 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-grow {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
+/* Thin scrollbars so wide tables do not gain a chunky grey band. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a3238 transparent;
+}
+
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #2a3238;
+  border-radius: 4px;
+}
