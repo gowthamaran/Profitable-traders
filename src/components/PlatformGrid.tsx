@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Category, Platform } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/types";
-import { profitablePct } from "@/lib/metrics/profitability";
+import { profitablePct, unprofitablePct } from "@/lib/metrics/profitability";
 import { evidenceScoreFor } from "@/lib/metrics/evidence";
 import { microcopyFor } from "@/lib/metrics/microcopy";
 import { PlatformCard } from "./PlatformCard";
@@ -21,9 +21,9 @@ const FILTERS: Array<{ id: Filter; label: string }> = [
 ];
 
 const SORTS: Array<{ id: SortKey; label: string }> = [
-  { id: "unprofitable", label: "Most unprofitable" },
-  { id: "profitable", label: "Most profitable" },
-  { id: "sample", label: "Largest sample" },
+  { id: "unprofitable", label: "Most wallets losing" },
+  { id: "profitable", label: "Most wallets winning" },
+  { id: "sample", label: "Most wallets studied" },
   { id: "evidence", label: "Best evidence" },
 ];
 
@@ -74,6 +74,7 @@ export function PlatformGrid({ platforms }: { platforms: Platform[] }) {
 
   return (
     <div id="database" className="scroll-mt-20">
+      <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2"><h2 className="text-2xl font-semibold">Pick your rabbit hole.</h2><p className="text-sm text-muted">{visible.length} platforms · Empty listings removed</p></div>
       <div className="mb-5 flex flex-wrap items-center gap-2 border-b border-ink-700 pb-4">
         <nav className="flex flex-wrap gap-1" aria-label="Category">
           {FILTERS.map((item) => {
@@ -86,11 +87,11 @@ export function PlatformGrid({ platforms }: { platforms: Platform[] }) {
                 type="button"
                 onClick={() => setFilter(item.id)}
                 aria-pressed={active}
-                className={`rounded-sm px-2.5 py-1.5 font-mono text-2xs font-semibold tracking-widest transition-colors ${
+                className={`rounded-sm px-2.5 py-1.5 text-sm font-medium transition-colors ${
                   active ? "bg-paper text-ink-950" : "text-muted hover:bg-ink-800 hover:text-paper"
                 }`}
               >
-                {item.label.toUpperCase()}
+                {item.label}
                 <span className={`ml-1.5 ${active ? "opacity-60" : "text-faint"}`}>{count}</span>
               </button>
             );
@@ -107,7 +108,7 @@ export function PlatformGrid({ platforms }: { platforms: Platform[] }) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search platforms"
-            className="w-40 rounded-sm border border-ink-700 bg-ink-900 px-2.5 py-1.5 text-xs text-paper placeholder:text-faint focus:border-ink-600 sm:w-52"
+            className="w-40 rounded-sm border border-ink-700 bg-ink-900 px-2.5 py-1.5 text-sm text-paper placeholder:text-faint focus:border-ink-600 sm:w-52"
           />
           <label className="sr-only" htmlFor="platform-sort">
             Sort by
@@ -116,7 +117,7 @@ export function PlatformGrid({ platforms }: { platforms: Platform[] }) {
             id="platform-sort"
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
-            className="rounded-sm border border-ink-700 bg-ink-900 px-2 py-1.5 font-mono text-2xs tracking-wider text-paper"
+            className="rounded-sm border border-ink-700 bg-ink-900 px-2 py-1.5 text-sm text-paper"
           >
             {SORTS.map((s) => (
               <option key={s.id} value={s.id}>
@@ -161,7 +162,7 @@ function compare(sort: SortKey) {
         return evidenceScoreFor(b.stat) - evidenceScoreFor(a.stat);
       case "unprofitable":
       default:
-        return profitablePct(a.stat.counts) - profitablePct(b.stat.counts);
+        return unprofitablePct(b.stat.counts) - unprofitablePct(a.stat.counts);
     }
   };
 }
@@ -170,15 +171,15 @@ function compare(sort: SortKey) {
 function EmptySearch() {
   return (
     <div className="rounded-md border border-dashed border-ink-600 bg-ink-900 p-10 text-center">
-      <p className="font-mono text-sm font-semibold tracking-widest text-paper">NO DATA.</p>
+      <p className="font-mono text-sm font-semibold tracking-widest text-paper">No matches. Not even a suspicious one.</p>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted">
-        We haven&apos;t found enough verifiable profitability data for this platform yet.
+        Try another name or category. Only platforms with results or public profitability reports appear here.
       </p>
       <a
         href="https://github.com/gowthamaran/Profitable-traders/issues/new?title=Platform%20request"
         target="_blank"
         rel="noreferrer noopener"
-        className="mt-4 inline-block rounded-sm border border-ink-600 px-3 py-2 font-mono text-2xs font-semibold tracking-widest text-paper hover:border-muted"
+        className="mt-4 inline-block rounded-sm border border-ink-600 px-3 py-2 text-sm font-medium text-paper hover:border-muted"
       >
         REQUEST PLATFORM
       </a>

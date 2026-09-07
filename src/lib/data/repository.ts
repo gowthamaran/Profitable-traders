@@ -3,6 +3,7 @@ import { demoPlatforms } from "./demo";
 import { db } from "./db";
 import { dataMode } from "./mode";
 import { rowsToPlatforms, rowsToSnapshots } from "./mapping";
+import { visiblePlatforms } from "./coverage";
 
 /**
  * The only place the rest of the app gets platform data from.
@@ -75,7 +76,7 @@ const CACHE_MS = 60_000;
 async function loadAll(): Promise<Platform[]> {
   if (cache && Date.now() - cache.at < CACHE_MS) return cache.platforms;
 
-  const platforms = dataMode() === "demo" ? demoPlatforms() : await loadFromDatabase();
+  const platforms = visiblePlatforms(dataMode() === "demo" ? demoPlatforms() : await loadFromDatabase());
   cache = { at: Date.now(), platforms };
   return platforms;
 }

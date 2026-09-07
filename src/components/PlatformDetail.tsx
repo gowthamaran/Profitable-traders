@@ -19,6 +19,7 @@ import { PnlDistribution } from "./charts/PnlDistribution";
 import { ProfitabilityTrend } from "./charts/ProfitabilityTrend";
 import { EvidenceDrawer } from "./EvidenceDrawer";
 import { ShareCard } from "./ShareCard";
+import { ProfitabilityReports } from "./ProfitabilityReports";
 import { DemoTag } from "./DemoBanner";
 import { EvidenceScorePill, InsufficientData, Microcopy, Panel, SectionHeading, Stat, WarningCard } from "./ui";
 
@@ -67,21 +68,27 @@ export function PlatformDetail({ platform, allPlatforms }: { platform: Platform;
         </div>
 
         <h2 className="mt-8 max-w-4xl text-lg font-semibold leading-snug tracking-tight text-paper sm:text-2xl">
-          WHAT % OF {platform.name.toUpperCase()} WALLETS ACTUALLY MADE MONEY?
+          Who made money on {platform.name}?
         </h2>
       </header>
 
       {!stat ? (
-        <UnknownPlatform platform={platform} />
+        platform.profitabilityReports?.length ? <ProfitabilityReports platform={platform} /> : <UnknownPlatform platform={platform} />
       ) : (
         <div className="mt-8 space-y-12">
           <HeadlineSection platform={platform} />
+          <section>
+            <SectionHeading title="Check the receipts" note="See the source, the dates, and how profit was counted." />
+            <EvidenceDrawer stat={stat} platformName={platform.name} />
+          </section>
+          <details className="deep-dive rounded-md border border-ink-600 p-5">
+            <summary className="cursor-pointer text-lg font-semibold">Want the full autopsy? <span className="text-sm font-normal text-muted">Charts, trading activity & limitations</span></summary>
+            <div className="mt-8 space-y-10">
 
           <section>
             <SectionHeading
-              label="Section 13"
               title="Reality check"
-              note="Three facts computed directly from the counts above. Nothing here is an estimate."
+              note="Three facts computed directly from the counts above. Demo records remain examples."
             />
             <RealityCheck platform={platform} />
             <p className="mt-3 text-sm italic text-muted">Your timeline may have left this part out.</p>
@@ -91,7 +98,7 @@ export function PlatformDetail({ platform, allPlatforms }: { platform: Platform;
             <SectionHeading
               label="Distribution"
               title="Where the money went"
-              note="Wallet counts by realised PnL bucket. Hover any bar for the exact figure."
+              note="Wallets grouped by profit or loss from closed trades. Hover any bar for the exact figure."
             />
             <Panel className="p-4">
               <PnlDistribution buckets={stat.buckets} />
@@ -101,7 +108,6 @@ export function PlatformDetail({ platform, allPlatforms }: { platform: Platform;
           <div className="grid gap-8 lg:grid-cols-2">
             <section>
               <SectionHeading
-                label="Section 15"
                 title="Where did everyone go?"
                 note="Profitable share by activity level. More trades is not the same as more skill."
               />
@@ -131,7 +137,6 @@ export function PlatformDetail({ platform, allPlatforms }: { platform: Platform;
 
             <section>
               <SectionHeading
-                label="Section 17"
                 title="The survivors"
                 note="Share of analyzed wallets finishing above each threshold."
               />
@@ -165,9 +170,8 @@ export function PlatformDetail({ platform, allPlatforms }: { platform: Platform;
 
           <section>
             <SectionHeading
-              label="Section 18"
               title="The graveyard"
-              note="Losing wallets by severity. The title is the joke; the chart is not."
+              note="Losing wallets by severity. Grouped by how much they lost."
             />
             <Panel className="p-4">
               <Graveyard platform={platform} />
@@ -176,7 +180,6 @@ export function PlatformDetail({ platform, allPlatforms }: { platform: Platform;
 
           <section>
             <SectionHeading
-              label="Section 16"
               title="Profitability over time"
               note="Each point is the profitable share of wallets active in that window."
             />
@@ -186,7 +189,7 @@ export function PlatformDetail({ platform, allPlatforms }: { platform: Platform;
           </section>
 
           <section>
-            <SectionHeading label="Section 21" title="Pain index" note="A site-created metric. Not an industry standard.">
+            <SectionHeading title="Pain index" note="A site-created metric. Not an industry standard.">
               <Link
                 href="/methodology#pain-index"
                 className="font-mono text-2xs tracking-widest text-accent hover:underline"
@@ -200,7 +203,6 @@ export function PlatformDetail({ platform, allPlatforms }: { platform: Platform;
           {badges.length > 0 && (
             <section>
               <SectionHeading
-                label="Section 19"
                 title="Badges"
                 note="Awarded by rule from the numbers above. Never assigned by hand."
               />
@@ -237,20 +239,17 @@ export function PlatformDetail({ platform, allPlatforms }: { platform: Platform;
 
           <section>
             <SectionHeading
-              label="Section 28"
               title="Data warnings"
               note="What this figure does not account for. Read before quoting it."
             />
             <DataWarnings platform={platform} />
           </section>
 
-          <section>
-            <SectionHeading label="Sections 25-26" title="The evidence" />
-            <EvidenceDrawer stat={stat} platformName={platform.name} />
-          </section>
+            </div>
+          </details>
 
           <section>
-            <SectionHeading label="Section 32" title="Share the damage" />
+            <SectionHeading title="Share the damage" />
             <ShareCard platform={platform} headline={surprisingStat(stat)} />
           </section>
         </div>
@@ -268,13 +267,13 @@ function HeadlineSection({ platform }: { platform: Platform }) {
         <Panel className="p-5">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="label">Profitable</p>
+              <p className="label">Made money</p>
               <p className="tnum mt-1 text-4xl font-semibold text-profit sm:text-5xl">
                 {pct(profitablePct(counts))}
               </p>
             </div>
             <div className="text-right">
-              <p className="label">Unprofitable</p>
+              <p className="label">Lost money</p>
               <p className="tnum mt-1 text-4xl font-semibold text-loss sm:text-5xl">
                 {pct(unprofitablePct(counts))}
               </p>
@@ -309,15 +308,15 @@ function HeadlineSection({ platform }: { platform: Platform }) {
           </dl>
           <div className="mt-4 grid grid-cols-2 gap-4 border-t border-ink-700 pt-4">
             <Stat
-              label="Median PnL"
+              label="Typical wallet result"
               value={signedUsd(stat.medianPnlUsd)}
               tone={stat.medianPnlUsd < 0 ? "loss" : "profit"}
             />
             <Stat
-              label="Mean PnL"
+              label="Average wallet result"
               value={signedUsd(stat.meanPnlUsd)}
               tone={(stat.meanPnlUsd ?? 0) < 0 ? "loss" : "profit"}
-              sub="Mean is dragged by the tail"
+              sub="Big wins can pull this number up"
             />
           </div>
           <p className="tnum mt-4 border-t border-ink-700 pt-3 text-2xs text-faint">

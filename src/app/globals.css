@@ -99,3 +99,15 @@ body {
   background: #2a3238;
   border-radius: 4px;
 }
+
+/* A quiet, readable research desk; colour belongs to outcomes. */
+.label { font-size: .875rem; letter-spacing: .025em; text-transform: none; font-family: var(--font-sans); }
+.text-2xs { font-size: .75rem; line-height: 1.5; }
+.platform-card { transition: border-color 160ms ease, background-color 160ms ease; }
+.platform-card:hover { border-color: #647b86; background-color: #151c21; }
+.platform-card > a:last-child { margin-top: auto; }
+.platform-card > p:last-of-type { margin-bottom: 1.5rem; }
+.deep-dive summary { display: list-item; }
+.deep-dive summary span { display: block; margin-top: .4rem; }
+.intro-compact { border-bottom: 0; }
+@media (max-width: 420px) { .platform-card .text-4xl { font-size: 1.875rem; } }

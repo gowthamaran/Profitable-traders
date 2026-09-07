@@ -36,7 +36,7 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-      <p className="label">Section 43</p>
+      
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-paper sm:text-3xl">
         Research queue
       </h1>

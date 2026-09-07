@@ -85,7 +85,7 @@ export default async function RankingsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-      <p className="label">Section 22</p>
+      
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-paper sm:text-3xl">Rankings</h1>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
         Every board ranks only platforms that carry the value it sorts on. A platform missing an

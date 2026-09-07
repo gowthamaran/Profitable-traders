@@ -12,10 +12,8 @@ export function DemoBanner() {
         <span className="rounded-sm border border-warn/60 px-1.5 py-0.5 font-mono text-2xs font-semibold tracking-widest text-warn">
           DEMO DATA
         </span>
-        <p className="text-xs text-paper/80">
-          Every figure on this site is synthetic and generated for interface development. These are{" "}
-          <strong className="font-semibold text-warn">not measurements</strong> of the named
-          platforms. No real dataset, query or research is cited for them.
+        <p className="text-sm text-paper/80">
+          Numbers marked DEMO are examples, not real platform results. Fomo links to public reports; its percentages have not been verified here.
         </p>
       </div>
     </div>

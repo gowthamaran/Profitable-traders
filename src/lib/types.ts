@@ -142,6 +142,8 @@ export type UnknownReason =
   | "research-pending";
 
 export interface Platform {
+  /** External reports, not evidence for an unverified or synthetic percentage. */
+  profitabilityReports?: Array<{ title: string; url: string }>;
   slug: string;
   name: string;
   category: Category;

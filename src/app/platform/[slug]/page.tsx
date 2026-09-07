@@ -22,8 +22,8 @@ export async function generateMetadata({
   if (!platform) return { title: "Platform not found" };
 
   const description = platform.stat
-    ? `${pct(profitablePct(platform.stat.counts))} of ${platform.stat.counts.analyzed.toLocaleString("en-US")} analyzed ${platform.name} wallets finished profitable. Sources, query and methodology included.`
-    : `No verifiable participant-level profitability data is published for ${platform.name}. Here is exactly what is and is not available.`;
+    ? `${platform.isDemo ? "DEMO example, not real results: " : ""}${pct(profitablePct(platform.stat.counts))} of ${platform.stat.counts.analyzed.toLocaleString("en-US")} analyzed ${platform.name} wallets finished profitable. Sources, query and methodology included.`
+    : `Read public profitability reports for ${platform.name}. External results are not independently verified on this site.`;
 
   return {
     title: platform.name,

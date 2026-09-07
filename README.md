@@ -35,6 +35,21 @@ With no approved records the site is empty — by design.
 
 ---
 
+## Interface update
+
+The homepage starts with made-money / lost-money percentages and a short path
+into each platform's results and evidence. Advanced charts and metrics remain
+available in an expandable section on the detail page.
+
+Public pages omit entries with neither a statistic nor a linked profitability
+report. This removes Rollbit, Stake, Shuffle, BC.Game, Drift, and dYdX from the
+demo's public catalogue. Their research records remain in the underlying data.
+
+Fomo now has a report-only entry with public Dune links. Its result rows have
+not been reproduced here: there is no invented percentage, no synthetic Fomo
+statistic, and no Fomo entry in numerical rankings or comparisons. Existing
+example statistics remain explicitly labelled DEMO.
+
 ## What it does
 
 ### The database

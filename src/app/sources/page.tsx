@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getPlatforms } from "@/lib/data/repository";
+import { ProfitabilityReports } from "@/components/ProfitabilityReports";
 import { isoDate } from "@/lib/format";
 import { fullNumber } from "@/lib/format";
 import { StatusPill } from "@/components/EvidenceDrawer";
@@ -20,11 +21,11 @@ export default async function SourcesPage() {
   const rows = platforms.flatMap((platform) =>
     (platform.stat?.sources ?? []).map((source) => ({ platform, source })),
   );
-  const unknown = platforms.filter((p) => !p.stat);
+  const reports = platforms.filter((p) => p.profitabilityReports?.length);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-      <p className="label">Section 39</p>
+      
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-paper sm:text-3xl">Receipts</h1>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
         Every source on file, including the broken ones. A source that stops resolving stays listed
@@ -103,32 +104,7 @@ export default async function SourcesPage() {
         )}
       </div>
 
-      {unknown.length > 0 && (
-        <section className="mt-12">
-          <h2 className="text-lg font-semibold tracking-tight text-paper">
-            Tracked with no usable source
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm text-muted">
-            These platforms are listed so the gap is visible. An absent row is not the same as an
-            absent platform.
-          </p>
-          <Panel className="mt-4 divide-y divide-ink-700">
-            {unknown.map((platform) => (
-              <div key={platform.slug} className="p-4">
-                <Link
-                  href={`/platform/${platform.slug}`}
-                  className="text-sm font-semibold text-paper hover:text-accent"
-                >
-                  {platform.name}
-                </Link>
-                <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted">
-                  {platform.dataAvailabilityNote}
-                </p>
-              </div>
-            ))}
-          </Panel>
-        </section>
-      )}
+      {reports.map(platform => <ProfitabilityReports key={platform.slug} platform={platform} />)}
     </div>
   );
 }

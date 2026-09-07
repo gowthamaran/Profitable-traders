@@ -17,7 +17,7 @@ export default async function ComparePage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-      <p className="label">Section 20</p>
+      
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-paper sm:text-3xl">
         Platform face-off
       </h1>
