@@ -133,6 +133,20 @@ curl -X POST "$SITE_URL/api/admin/review" \
 
 Deploy target is Vercel (`vercel.json` included); any Node host works.
 
+### Deploy the website to Vercel
+
+1. In Vercel, import `gowthamaran/Profitable-traders` and select its default
+   branch, `claude/build-deploy-github-cfmglm`.
+2. Keep the repository root and the detected **Next.js** preset. Use project
+   name `profitable-traders` and set `DATA_MODE=demo` for the initial preview.
+3. Deploy. No database or API keys are needed to explore the demo.
+
+Demo pages are marked `noindex` to keep synthetic figures out of search results.
+Page metadata uses Vercel's deployment domain automatically; set `SITE_URL` only
+when you have a custom domain. To publish real figures, configure Postgres,
+apply the schema, populate and review evidence, then set `DATA_MODE=production`.
+Deploying the code does not collect or verify profitability data automatically.
+
 ### Environment
 
 | Variable | Purpose |

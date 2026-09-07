@@ -2,9 +2,17 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { isDemoMode } from "@/lib/data/mode";
+
+const siteUrl = process.env.SITE_URL
+  ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Trader Profitability Database",
     template: "%s · Trader Profitability Database",
@@ -17,7 +25,7 @@ export const metadata: Metadata = {
     description:
       "Wallet-level profitability across prediction markets, memecoin launchpads and perps — with the evidence attached.",
   },
-  robots: { index: true, follow: true },
+  robots: { index: !isDemoMode(), follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
