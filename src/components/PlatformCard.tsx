@@ -89,7 +89,8 @@ export function PlatformCard({
 
           <Microcopy>{line}</Microcopy>
 
-          <div className="mt-4 flex items-center justify-between border-t border-ink-700 pt-3">
+          <div className="h-4" aria-hidden />
+          <div className="mt-auto flex items-center justify-between border-t border-ink-700 pt-3">
             <span className="font-mono text-2xs text-faint">
               UPDATED {relativeAge(stat.lastUpdated).toUpperCase()}
             </span>
@@ -111,7 +112,8 @@ export function PlatformCard({
               {platform.dataAvailabilityNote}
             </p>
           </div>
-          <div className="mt-4 flex items-center justify-between border-t border-ink-700 pt-3">
+          <div className="h-4" aria-hidden />
+          <div className="mt-auto flex items-center justify-between border-t border-ink-700 pt-3">
             <span className="rounded-sm border border-ink-600 px-1.5 py-0.5 font-mono text-2xs tracking-wider text-muted">
               DATA BLACK HOLE
             </span>
